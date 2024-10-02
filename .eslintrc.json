@@ -1,0 +1,9 @@
+{
+  "extends": "next/core-web-vitals",
+  "rules": {
+    "@typescript-eslint/no-explicit-any": "off", // Disables the rule that prohibits 'any' type
+    "@typescript-eslint/ban-types": "off", // Disables banning certain types like Function
+    "no-unused-vars": "off", // Prevents unused variable errors during development
+    "@typescript-eslint/no-unused-vars": "off" // Similar to above, but for TypeScript
+  }
+}
