@@ -52,6 +52,9 @@ export async function GET(request: Request) {
       where: {
         createdBy: user.id,
       },
+      orderBy: {
+        quizName: "asc",
+      },
       include: {
         words: true,
       },

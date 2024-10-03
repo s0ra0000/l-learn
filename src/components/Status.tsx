@@ -16,11 +16,16 @@ const Status = ({ status }: statusProps) => {
       break;
   }
   return (
-    <span
-      className={`px-3 py-1 rounded-full text-white text-[10px] md:text-sm ${statusColor}`}
-    >
-      {status}
-    </span>
+    <>
+      <div
+        className={`block md:hidden h-full rounded-full w-2 ${statusColor}`}
+      ></div>
+      <span
+        className={`hidden md:block px-3 py-1 rounded-full text-white text-[10px] md:text-sm ${statusColor}`}
+      >
+        {status}
+      </span>
+    </>
   );
 };
 

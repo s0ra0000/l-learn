@@ -2,7 +2,7 @@
 import { useState, MouseEvent } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { useRouter } from "next/navigation"; // Import useRouter from next/navigation
+import { useRouter, usePathname } from "next/navigation"; // Import useRouter from next/navigation
 
 interface DialogProps {
   title: string;
@@ -16,7 +16,8 @@ interface DialogProps {
 }
 
 const AddWordDialog = ({ title, isOpen, onClose, onSubmit }: DialogProps) => {
-  const router = useRouter(); // Initialize useRouter
+  const router = useRouter();
+  const pathname = usePathname();
   const [word, setWord] = useState("");
   const [definition, setDefinition] = useState("");
   const [translation, setTranslation] = useState("");
@@ -44,8 +45,12 @@ const AddWordDialog = ({ title, isOpen, onClose, onSubmit }: DialogProps) => {
       // Close the dialog
       onClose();
 
-      // Redirect to /dashboard/words
-      router.push("/dashboard/words");
+      if (pathname === "/dashboard/words") {
+        console.log("wtf");
+        window.location.reload();
+      } else {
+        router.push("/dashboard/words");
+      }
     } catch (error) {
       console.error("Error adding word:", error);
       toast.error("Failed to add word. Please try again.");

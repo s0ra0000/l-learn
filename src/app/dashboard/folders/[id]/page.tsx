@@ -17,7 +17,9 @@ type Word = {
 export default function Folders1({ params }: { params: { id: string } }) {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [words, setWords] = useState<Word[]>([]);
+  const [filteredWords, setFilteredWords] = useState<Word[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState(""); // Search input value
   const folderId = params.id;
 
   // Fetch words from the folder when the component mounts or after adding a new word
@@ -30,6 +32,7 @@ export default function Folders1({ params }: { params: { id: string } }) {
       if (response.ok) {
         const data: Word[] = await response.json();
         setWords(data);
+        setFilteredWords(data); // Initialize filtered words with all data
       } else {
         console.error("Failed to fetch words");
       }
@@ -43,6 +46,27 @@ export default function Folders1({ params }: { params: { id: string } }) {
   useEffect(() => {
     fetchWords();
   }, [folderId]);
+
+  // Handle search input change
+  const handleSearchChange = (e) => {
+    const searchValue = e.target.value;
+    setSearchTerm(searchValue);
+
+    // Immediately filter words based on the search value
+    if (searchValue === "") {
+      setFilteredWords(words);
+    } else {
+      const filtered = words.filter((word) =>
+        word.word.toLowerCase().includes(searchValue.toLowerCase())
+      );
+      setFilteredWords(filtered);
+    }
+  };
+
+  // Handle form submission
+  const handleSearchSubmit = (e) => {
+    e.preventDefault(); // Prevent form submission from reloading the page
+  };
 
   const openAddDialog = () => {
     setIsAddDialogOpen(true);
@@ -77,11 +101,13 @@ export default function Folders1({ params }: { params: { id: string } }) {
       <div className="w-[1200px] w-full h-screen">
         <h1 className="text-2xl font-semibold mb-8">TOEFL</h1>
         <div className="mb-[30px] flex items-center justify-between">
-          <form className="flex items-center">
+          <form className="flex items-center" onSubmit={handleSearchSubmit}>
             <input
               type="search"
               className="px-4 py-2 rounded-l h-10 w-[360px]"
               placeholder="word..."
+              value={searchTerm}
+              onChange={handleSearchChange}
             />
             <button type="submit" className="bg-white py-2 h-10 px-4 rounded-r">
               <IoIosSearch className="text-[20px]" />
@@ -99,7 +125,7 @@ export default function Folders1({ params }: { params: { id: string } }) {
         {isLoading ? (
           <p>Loading...</p> // You could replace this with a loading spinner if preferred
         ) : (
-          <WordTable data={words} />
+          <WordTable key={filteredWords.length} data={filteredWords} />
         )}
 
         {isAddDialogOpen && (

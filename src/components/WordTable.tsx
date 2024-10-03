@@ -108,6 +108,17 @@ const WordTable = ({ data }: WordTableProps) => {
     setIsDialogOpen(false);
     setSelectedWord(null);
   };
+  const [openWordIds, setOpenWordIds] = useState<{ [key: number]: boolean }>(
+    {}
+  );
+
+  // Toggle dropdown visibility for a specific word by its id
+  const toggleDropdown = (id: number) => {
+    setOpenWordIds((prev) => ({
+      ...prev,
+      [id]: !prev[id], // Toggle the current word's open state
+    }));
+  };
 
   return (
     <div>
@@ -121,36 +132,81 @@ const WordTable = ({ data }: WordTableProps) => {
       </div>
       {words.length === 0 && <p className="mt-4">No words...</p>}
       {words.map((row, index) => (
-        <div
-          key={row.id}
-          className={`md:grid md:grid-cols-6 md:gap-4 px-4 p-2 ${
-            index % 2 === 0 ? "bg-gray-50" : "bg-white"
-          } hover:bg-gray-100 border-b`}
-        >
-          <div className="text-[20px] md:text-[16px] font-bold">{row.word}</div>
-          <div className="text-light">
-            <p className="md:hidden text-[12px] text-[#4b4b4b] mt-2">
-              Defination:
-            </p>
-            {row.definition}
+        <>
+          <div
+            key={row.id}
+            className="md:hidden flex flex-col bg-white px-4 py-2 gap-2 mb-2 rounded"
+          >
+            {/* Word Header Section (Clickable to Toggle Dropdown) */}
+            <div
+              className="flex justify-between items-center cursor-pointer"
+              onClick={() => toggleDropdown(row.id)}
+            >
+              <div className="flex">
+                <div className="text-center md:text-left">
+                  <Status status={row.status} />
+                </div>
+                <div className="text-[20px] md:text-[16px] font-bold ml-4">
+                  {row.word}
+                </div>
+              </div>
+              <div className="flex flex-col justify-center">
+                <EditButton onClick={() => handleEdit(row)} />
+                <DeleteButton onClick={() => handleDelete(row)} />
+              </div>
+            </div>
+
+            {/* Dropdown Content (Definition and Translation) */}
+            {openWordIds[row.id] && (
+              <div className="ml-4">
+                <div className="text-light">
+                  <p className="md:hidden text-[12px] text-[#4b4b4b] mt-2">
+                    Definition:
+                  </p>
+                  {row.definition}
+                </div>
+                <div className="text-light">
+                  <p className="md:hidden text-[12px] text-[#4b4b4b] mt-2">
+                    Translation:
+                  </p>
+                  {row.translation}
+                </div>
+              </div>
+            )}
           </div>
-          <div className="text-light">
-            <p className="md:hidden text-[12px] text-[#4b4b4b] mt-2">
-              Translation:
-            </p>
-            {row.translation}
+          <div
+            key={row.id}
+            className={`hidden md:grid md:grid-cols-6 md:gap-4 px-4 p-2 ${
+              index % 2 === 0 ? "bg-gray-50" : "bg-white"
+            } hover:bg-gray-100 border-b`}
+          >
+            <div className="text-[20px] md:text-[16px] font-bold">
+              {row.word}
+            </div>
+            <div className="text-light">
+              <p className="md:hidden text-[12px] text-[#4b4b4b] mt-2">
+                Defination:
+              </p>
+              {row.definition}
+            </div>
+            <div className="text-light">
+              <p className="md:hidden text-[12px] text-[#4b4b4b] mt-2">
+                Translation:
+              </p>
+              {row.translation}
+            </div>
+            <div className="text-center md:text-left mb-2 md:mb-0 hidden md:block w-fit">
+              <Status status={row.status} />
+            </div>
+            <div className="hidden md:block">
+              {new Date(row.createdAt).toLocaleDateString()}
+            </div>
+            <div className="flex justify-center space-x-2">
+              <EditButton onClick={() => handleEdit(row)} />
+              <DeleteButton onClick={() => handleDelete(row)} />
+            </div>
           </div>
-          <div className="text-center md:text-left mb-2 md:mb-0">
-            <Status status={row.status} />
-          </div>
-          <div className="hidden md:block">
-            {new Date(row.createdAt).toLocaleDateString()}
-          </div>
-          <div className="flex justify-center space-x-2">
-            <EditButton onClick={() => handleEdit(row)} />
-            <DeleteButton onClick={() => handleDelete(row)} />
-          </div>
-        </div>
+        </>
       ))}
 
       {/* Delete Confirmation Dialog */}

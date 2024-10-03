@@ -48,6 +48,9 @@ export async function GET(request: Request) {
       where: {
         createdBy: user.id,
       },
+      orderBy: {
+        folderName: "asc",
+      },
       include: {
         words: true, // Include related words in the response
       },

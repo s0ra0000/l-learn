@@ -43,6 +43,9 @@ export async function GET(request: Request) {
       where: {
         createdBy: user.id,
       },
+      orderBy: {
+        createdAt: "desc", // Sort by createdAt in descending order
+      },
     });
 
     return NextResponse.json(words);

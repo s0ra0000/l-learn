@@ -15,7 +15,9 @@ type Quiz = {
 export default function Quizzes() {
   const [isCreateQuizDialogOpen, setIsCreateQuizDialogOpen] = useState(false);
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
+  const [filteredQuizzes, setFilteredQuizzes] = useState<Quiz[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState(""); // Search input value
 
   // Fetch quizzes from the server
   const fetchQuizzes = async () => {
@@ -25,6 +27,7 @@ export default function Quizzes() {
       if (response.ok) {
         const data: Quiz[] = await response.json();
         setQuizzes(data);
+        setFilteredQuizzes(data); // Initialize filtered quizzes with all data
       } else {
         console.error("Failed to fetch quizzes");
       }
@@ -38,6 +41,27 @@ export default function Quizzes() {
   useEffect(() => {
     fetchQuizzes();
   }, []);
+
+  // Handle search input change
+  const handleSearchChange = (e) => {
+    const searchValue = e.target.value;
+    setSearchTerm(searchValue);
+
+    // Immediately filter quizzes based on the search value
+    if (searchValue === "") {
+      setFilteredQuizzes(quizzes);
+    } else {
+      const filtered = quizzes.filter((quiz) =>
+        quiz.quizName.toLowerCase().includes(searchValue.toLowerCase())
+      );
+      setFilteredQuizzes(filtered);
+    }
+  };
+
+  // Handle form submission
+  const handleSearchSubmit = (e) => {
+    e.preventDefault(); // Prevent form submission from reloading the page
+  };
 
   // Create a new quiz
   const handleCreateQuiz = async (
@@ -111,11 +135,13 @@ export default function Quizzes() {
       <div className="w-full min-h-screen">
         <h1 className="text-[28px] mb-[16px]">Quizzes</h1>
         <div className="mb-[30px] flex justify-between items-center">
-          <form className="flex items-center">
+          <form className="flex items-center" onSubmit={handleSearchSubmit}>
             <input
               type="search"
               className="px-4 py-2 rounded-l h-10 w-[200px] md:w-[360px]"
               placeholder="Search quiz..."
+              value={searchTerm}
+              onChange={handleSearchChange}
             />
             <button type="submit" className="bg-white py-2 h-10 px-4 rounded-r">
               <IoIosSearch className="text-[20px]" />
@@ -125,11 +151,9 @@ export default function Quizzes() {
             onClick={openCreateQuizDialog}
             className="bg-primary px-2 md:px-3 py-2 rounded-full md:rounded text-white flex items-center justify-center"
           >
-            {/* Show the plus icon only when the screen width is <= 400px */}
             <span className="block md:hidden">
               <MdAdd className="text-2xl" />
             </span>
-            {/* Show the "Create folder" text when the screen width is > 400px */}
             <span className="hidden md:block">Create quiz</span>
           </button>
         </div>
@@ -139,8 +163,8 @@ export default function Quizzes() {
           <p>Loading quizzes...</p>
         ) : (
           <div className="w-full flex gap-[30px] items-center flex-col md:flex-row md:items-start md:flex-wrap">
-            {quizzes.length === 0 && <p>No quizzes...</p>}
-            {quizzes.map((quiz) => (
+            {filteredQuizzes.length === 0 && <p>No quizzes...</p>}
+            {filteredQuizzes.map((quiz) => (
               <QuizCard
                 key={quiz.id}
                 id={quiz.id}
