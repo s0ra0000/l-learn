@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useKindeBrowserClient } from "@kinde-oss/kinde-auth-nextjs";
 import AddWordDialog from "./AddWordDialog";
 import Link from "next/link";
@@ -7,9 +7,27 @@ import Image from "next/image";
 
 const Header = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [dateString, setDateString] = useState("");
+  const [dayString, setDayString] = useState("");
 
   // Get the user's data from Kinde
-  const { user, getUser } = useKindeBrowserClient();
+  const { user } = useKindeBrowserClient();
+
+  useEffect(() => {
+    const updateDateAndDay = () => {
+      const today = new Date();
+      const options: Intl.DateTimeFormatOptions = {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      };
+      setDateString(today.toLocaleDateString(undefined, options));
+      setDayString(today.toLocaleDateString(undefined, { weekday: "long" }));
+    };
+
+    updateDateAndDay();
+  }, []);
+
   const openDialog = () => {
     setIsDialogOpen(true); // This should open the dialog
   };
@@ -30,8 +48,8 @@ const Header = () => {
     <>
       <header className="flex items-center justify-between px-[30px] py-4 w-full bg-white z-20">
         <div className="flex gap-4 ">
-          <p className="hidden md:block">2024-09-27</p>
-          <p className="ml-8 md:ml-0">Friday</p>
+          <p className="hidden md:block">{dateString}</p>
+          <p className="ml-8 md:ml-0">{dayString}</p>
         </div>
         <div className="flex gap-4">
           <button
